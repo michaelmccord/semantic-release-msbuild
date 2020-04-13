@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "semantic-release": "17.0.x",
+    "semantic-release-test-utils": "http://github.com/michaelmccord/semantic-release-test-utils"
+  },
+  "peerDependencies": {
+    "semantic-release": "17.0.x"
+  },
+  "name": "semantic-release-msbuild",
+  "version": "1.0.0",
+  "description": "MSBuild plugin for semantic-release",
+  "main": "src/index.js",
+  "repository": "https://github.com/michaelmccord/semantic-release-msbuild.git",
+  "author": "Michael McCord",
+  "license": "MIT",
+  "private": false
+}
