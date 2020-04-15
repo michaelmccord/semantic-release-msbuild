@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "jasmine": "^3.5.0",
     "semantic-release": "17.0.x",
     "semantic-release-test-utils": "http://github.com/michaelmccord/semantic-release-test-utils"
   },
@@ -13,5 +14,13 @@
   "repository": "https://github.com/michaelmccord/semantic-release-msbuild.git",
   "author": "Michael McCord",
   "license": "MIT",
-  "private": false
+  "private": false,
+  "dependencies": {
+    "@semantic-release/error": "^2.2.0",
+    "execa": "^4.0.0",
+    "lodash": "^4.17.15"
+  },
+  "scripts": {
+    "test": "jasmine"
+  }
 }
