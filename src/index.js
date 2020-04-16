@@ -154,6 +154,7 @@ function verifyRelease(pluginConfig, context) {
           `/property:PackageVersion=${context.nextRelease.version}`,
           `/property:Configuration=${config}`,
           `/property:PublishDir=${publishDir}`,
+          `/property:PublishUrl=${publishDir}`,
           '/property:GenerateAssemblyInfo=true',
           ...args,
           projectPath,
