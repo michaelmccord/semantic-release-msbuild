@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const execa = require('execa');
 const getLogger = require('./get-logger');
+const semver = require('semver');
 
 let msbuildLocation = '';
 
@@ -108,14 +109,17 @@ function verifyConditions(pluginConfig, context) {
       throw new SemanticReleaseError('targets must be array', 'E_TARGETS_ARRAY', '"targets" must be an array');
     if(p.properties && !isPlainObject(p.properties))
       throw new SemanticReleaseError('properties must be object', 'E_PROP_OBJ', '"properties" must a dictionary of key-value pairs');
-    if(!p.config)
-      p.config = 'Release';
+    if(p.config && !isString(p.config))
+      throw new SemanticReleaseError('config must be a string', 'E_CONFIG_STR', 'The config property must be a valid string');
+    if(p.publishDir && !isString(p.publishDir))
+      throw new SemanticReleaseError('publishDir must be a string', 'E_PUB_DIR', 'publishDir must be a valid path string');
   });
 }
 
 
 function verifyRelease(pluginConfig, context) {
   const logger = getLogger(context);
+  const version = new semver.SemVer(context.nextRelease.version);
   pluginConfig.projects.forEach(p=>{
       logger.info(`Building project ${p.path}`);
       try {
@@ -125,18 +129,32 @@ function verifyRelease(pluginConfig, context) {
                        : [];
       let targets = p.targets
                     ? p.targets.map(t=>`/target:${t}`)
-                    : [];
+                    : ['/target:clean;publish'];
       let args = p.args
                     ? p.args
                     : [];
+      let config = p.config
+                    ? p.config
+                    : 'Release';
+      let projectName = path.basename(p.path);
+      projectName = projectName.substr(0, projectName.lastIndexOf('.'));
+      let publishDir = p.publishDir
+                    ? !path.isAbsolute(p.publishDir) ? path.resolve(context.cwd, p.publishDir) : p.publishDir
+                    : path.resolve(context.cwd, 'msbuild-publish', projectName, config)
+
       execa.sync(path.resolve(__dirname, 'Execute.bat'),
         [
           msbuildLocation,
           'msbuild',
           ...targets,
           ...properties,
-          `/property:Version=${context.nextVersion}`,
-          `/property:Config=${p.config}`,
+          `/property:FileVersion=${version.major}.${version.minor}.${version.patch}`,
+          `/property:AssemblyVersion=${version.major}.${version.minor}.${version.patch}`,
+          `/property:InformationalVersion=${context.nextRelease.version}`,
+          `/property:PackageVersion=${context.nextRelease.version}`,
+          `/property:Configuration=${config}`,
+          `/property:PublishDir=${publishDir}`,
+          '/property:GenerateAssemblyInfo=true',
           ...args,
           projectPath,
         ],
@@ -148,7 +166,7 @@ function verifyRelease(pluginConfig, context) {
       })
     } catch(error) {
       throw [
-        new SemanticReleaseError('Error building project', 'E_PROJ_BUILD', `There was an error building the project at ${k}`),
+        new SemanticReleaseError('Error building project', 'E_PROJ_BUILD', `There was an error building the project at ${p.path}`),
         error
       ];
     }
