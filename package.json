@@ -1,11 +1,11 @@
 {
   "devDependencies": {
     "jasmine": "^3.5.0",
-    "semantic-release": "17.0.x",
+    "semantic-release": "17.2.x",
     "semantic-release-test-utils": "http://github.com/michaelmccord/semantic-release-test-utils"
   },
   "peerDependencies": {
-    "semantic-release": "17.0.x"
+    "semantic-release": "17.2.x"
   },
   "name": "semantic-release-msbuild",
   "version": "1.0.0",
